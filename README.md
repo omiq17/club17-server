@@ -3,7 +3,7 @@
 
 A club management web application.
 
-## Run this project
+### Run this project
 
 - Install the dependencies:
 ```
@@ -13,7 +13,7 @@ yarn
 ```
 yarn start:dev
 ```
-## Build and Run
+### Build and Run
 - Install the dependencies:
 ```
 yarn

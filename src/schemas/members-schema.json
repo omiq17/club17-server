@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/members.schema.json",
+  "title": "Members of club17",
+  "description": "This document records the details of all members",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "full name",
+      "type": "string",
+      "minLength": 3
+    },
+    "address": {
+      "description": "address info",
+      "type": "string"
+    },
+    "dob": {
+      "description": "date of birth",
+      "type": "string"
+    },
+    "phone": {
+      "description": "phone number",
+      "type": "number",
+      "minLength": 11
+    },
+    "email": {
+      "description": "email of the member",
+      "type": "string",
+      "format": "email"
+    },
+    "avatar": {
+      "description": "image of member",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "address",
+    "dob",
+    "email"
+  ]
+}

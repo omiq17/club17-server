@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/users.schema.json",
+  "title": "Users of club17",
+  "description": "This document records the details of all users",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "full name of the user",
+      "type": "string",
+      "minLength": 3
+    },
+    "username": {
+      "description": "a unique username of the user",
+      "type": "string",
+      "minLength": 3
+    },
+    "email": {
+      "description": "email of the user",
+      "type": "string",
+      "format": "email"
+    },
+    "password": {
+      "description": "password of the user",
+      "type": "string",
+      "minLength": 6
+    }
+  },
+  "required": [
+    "name",
+    "username",
+    "email",
+    "password"
+  ]
+}

@@ -8,7 +8,8 @@
     "name": {
       "description": "full name of the user",
       "type": "string",
-      "minLength": 3
+      "minLength": 3,
+      "unique": true
     },
     "username": {
       "description": "a unique username of the user",

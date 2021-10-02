@@ -18,15 +18,15 @@
       "description": "date of birth",
       "type": "string"
     },
-    "phone": {
-      "description": "phone number",
-      "type": "number",
-      "minLength": 11
-    },
     "email": {
       "description": "email of the member",
       "type": "string",
       "format": "email"
+    },
+    "phone": {
+      "description": "phone number",
+      "type": "number",
+      "minLength": 11
     },
     "avatar": {
       "description": "image of member",

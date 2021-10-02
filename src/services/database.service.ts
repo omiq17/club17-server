@@ -1,9 +1,14 @@
 // External Dependencies
 import * as mongoDB from "mongodb";
 import * as dotenv from "dotenv";
+import { IUser } from "src/types/user";
+import { IMember } from "src/types/member";
 
 // Global Variables
-export const collections: { club17?: mongoDB.Collection } = {}
+export const collections: {
+  users?: mongoDB.Collection<IUser>,
+  members?: mongoDB.Collection<IMember>
+} = {};
 
 // Initialize Connection
 export async function connectToDatabase() {
@@ -15,9 +20,11 @@ export async function connectToDatabase() {
 
   const db: mongoDB.Db = client.db(process.env.DB_NAME);
 
-  const gamesCollection: mongoDB.Collection = db.collection(process.env.GAMES_COLLECTION_NAME);
+  const usersCollection: mongoDB.Collection<IUser> = db.collection(process.env.USERS_COLLECTION_NAME);
+  const membersCollection: mongoDB.Collection<IMember> = db.collection(process.env.MEMBERS_COLLECTION_NAME);
 
-  collections.club17 = gamesCollection;
+  collections.users = usersCollection;
+  collections.members = membersCollection;
 
-  console.log(`Successfully connected to database: ${db.databaseName} and collection: ${gamesCollection.collectionName}`);
+  console.log(`Successfully connected to database: ${db.databaseName}`);
 }

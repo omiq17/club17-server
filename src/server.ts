@@ -6,7 +6,6 @@ const PORT = process.env.PORT ?? 8000;
 
 connectToDatabase()
   .then(() => {
-    // app.use("/games", gamesRouter);
     app.listen(PORT, () => {
       // only log this information in development.
       if (process.env?.NODE_ENV !== "production")

@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-
-import routes from "./routes";
+import { memberRoutes, userRoutes } from "./routes";
 
 // initialize configuration
 dotenv.config();
@@ -18,10 +17,12 @@ class App {
 
   middlewares() {
     this.server.use(express.json());
+    this.server.use(express.urlencoded({ extended: true }));
   }
 
   routes() {
-    this.server.use(routes);
+    this.server.use("/api/v1/user", userRoutes);
+    this.server.use("/api/v1/member", memberRoutes);
   }
 }
 

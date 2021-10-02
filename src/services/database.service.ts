@@ -1,8 +1,8 @@
 // External Dependencies
 import * as mongoDB from "mongodb";
 import * as dotenv from "dotenv";
-import { IUser } from "src/types/user";
-import { IMember } from "src/types/member";
+import { IUser } from "../types/user";
+import { IMember } from "../types/member";
 
 // Global Variables
 export const collections: {

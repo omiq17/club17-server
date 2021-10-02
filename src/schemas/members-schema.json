@@ -5,6 +5,10 @@
   "description": "This document records the details of all members",
   "type": "object",
   "properties": {
+    "userId": {
+      "description": "_id/ObjectId of user",
+      "type": "string"
+    },
     "name": {
       "description": "full name",
       "type": "string",
@@ -34,9 +38,11 @@
     }
   },
   "required": [
+    "userId",
     "name",
     "address",
     "dob",
-    "email"
+    "email",
+    "avatar"
   ]
 }

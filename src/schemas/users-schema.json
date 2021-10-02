@@ -8,18 +8,12 @@
     "name": {
       "description": "full name of the user",
       "type": "string",
-      "minLength": 3,
-      "unique": true
+      "minLength": 3
     },
     "username": {
       "description": "a unique username of the user",
       "type": "string",
       "minLength": 3
-    },
-    "email": {
-      "description": "email of the user",
-      "type": "string",
-      "format": "email"
     },
     "password": {
       "description": "password of the user",
@@ -30,7 +24,6 @@
   "required": [
     "name",
     "username",
-    "email",
     "password"
   ]
 }

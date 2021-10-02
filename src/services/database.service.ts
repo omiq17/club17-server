@@ -1,6 +1,7 @@
 // External Dependencies
 import * as mongoDB from "mongodb";
 import * as dotenv from "dotenv";
+
 import { IUser } from "../types/user";
 import { IMember } from "../types/member";
 

@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+
 import { memberRoutes, userRoutes } from "./routes";
 
 // initialize configuration

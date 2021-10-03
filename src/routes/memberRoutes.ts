@@ -1,27 +1,45 @@
 import { Router } from "express";
 import { ObjectId } from "mongodb";
+import Ajv from "ajv";
 
 import { collections } from "../services/database.service";
 import asyncHandler from "../util/asyncHandler";
 import upload from "../util/uploadHelper";
+import { memberSchema } from "../schemas";
 
 const routes = Router();
+const ajv = new Ajv({ allErrors: true });
 
 // Add member
 routes.post("/add", upload.single('avatar'), asyncHandler(async (req, res) => {
+  // check avatar
   if (!req.file) {
     return res.status(400).json({ message: "Avatar not found" })
   }
 
-  const { userId, name, address, dob, email, phone } = req.body;
-
-  // remove the optional field
-  if (!phone) {
-    delete req.body.phone
-  }
-
   // attach uploaded file to avatar
   req.body.avatar = req.file.filename;
+
+  if (req.body.phone) {
+    req.body.phone = Number(req.body.phone);
+  }
+
+  // validation
+  const validate = ajv.compile(memberSchema);
+  const valid = validate(req.body);
+
+  if (!valid) {
+    return res.status(400).json({ message: ajv.errorsText(validate.errors) });
+  }
+
+  // check if user exist
+  const user = await collections.users.findOne({ _id: new ObjectId(req.body.userId) });
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid user id" });
+  }
+
+
 
   const result = await collections.members.insertOne(req.body);
 
@@ -41,6 +59,7 @@ routes.put("/update/avatar/:id", upload.single('avatar'), asyncHandler(async (re
 
   const { id } = req.params;
 
+  // check member and update
   const member = await collections.members.findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: { avatar: req.file.filename } }
@@ -63,9 +82,16 @@ routes.put("/update/info/:id", asyncHandler(async (req, res) => {
 
   const { userId, name, address, dob, email, phone, avatar } = req.body;
 
-  // remove the optional field
-  if (!phone) {
-    delete req.body.phone
+  if (req.body.phone) {
+    req.body.phone = Number(req.body.phone);
+  }
+
+  // validation
+  const validate = ajv.compile(memberSchema);
+  const valid = validate(req.body);
+
+  if (!valid) {
+    return res.status(400).json({ message: ajv.errorsText(validate.errors) });
   }
 
   const member = await collections.members.findOneAndUpdate(
@@ -73,6 +99,7 @@ routes.put("/update/info/:id", asyncHandler(async (req, res) => {
     { $set: req.body }
   );
 
+  // check member and update
   if (member && member.value) {
     res.json({ message: "success", member: member });
   } else if (!member.value) {

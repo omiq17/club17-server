@@ -9,6 +9,7 @@
     "start:prod": "node dist/server.js"
   },
   "dependencies": {
+    "ajv": "^8.6.3",
     "express": "^4.17.1",
     "mongodb": "^4.1.2",
     "multer": "^1.4.3"

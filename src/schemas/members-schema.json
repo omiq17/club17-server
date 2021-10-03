@@ -25,12 +25,11 @@
     "email": {
       "description": "email of the member",
       "type": "string",
-      "format": "email"
+      "pattern": "^\\S+@\\S+\\.\\S+$"
     },
     "phone": {
       "description": "phone number",
-      "type": "number",
-      "minLength": 11
+      "type": "number"
     },
     "avatar": {
       "description": "image of member",

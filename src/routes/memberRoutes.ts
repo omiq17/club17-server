@@ -32,14 +32,16 @@ routes.post("/add", upload.single('avatar'), asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid data", error: ajv.errorsText(validate.errors) });
   }
 
+  if (!ObjectId.isValid(req.body.userId)) {
+    return res.status(400).json({ message: "Invalid user id" });
+  }
+
   // check if user exist
   const user = await collections.users.findOne({ _id: new ObjectId(req.body.userId) });
 
   if (!user) {
-    return res.status(400).json({ message: "Invalid user id" });
+    return res.status(404).json({ message: "User not found" });
   }
-
-
 
   const result = await collections.members.insertOne(req.body);
 
@@ -58,6 +60,11 @@ routes.put("/update/avatar/:id", upload.single('avatar'), asyncHandler(async (re
   }
 
   const { id } = req.params;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid member id" });
+  }
+
 
   // check member and update
   const member = await collections.members.findOneAndUpdate(
@@ -80,7 +87,9 @@ routes.put("/update/avatar/:id", upload.single('avatar'), asyncHandler(async (re
 routes.put("/update/info/:id", asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const { userId, name, address, dob, email, phone, avatar } = req.body;
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid member id" });
+  }
 
   if (req.body.phone) {
     req.body.phone = Number(req.body.phone);
@@ -114,13 +123,35 @@ routes.put("/update/info/:id", asyncHandler(async (req, res) => {
 routes.get("/list/:userId", asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
+  if (!ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid user id" });
+  }
+
+
   const members = await collections.members.find({ userId }).toArray();
-  // const members = await collections.users.find({});
 
   if (members) {
     res.json({ message: "success", members });
   } else {
     res.status(404).json({ message: "User not found" });
+  }
+})
+);
+
+// Delete member
+routes.delete("/delete/:memberId", asyncHandler(async (req, res) => {
+  const { memberId } = req.params;
+
+  if (!ObjectId.isValid(memberId)) {
+    return res.status(400).json({ message: "Invalid member id" });
+  }
+
+  const result = await collections.members.deleteOne({ _id: new ObjectId(memberId) });
+
+  if (result && result.deletedCount === 1) {
+    res.json({ message: "success" });
+  } else {
+    res.status(404).json({ message: "Member not found" });
   }
 })
 );

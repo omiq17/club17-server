@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 export interface IMember {
-  userId: ObjectId;
+  userId: string;
   name: string;
   address: string;
   dob: string;

@@ -1,10 +1,12 @@
+import Ajv from "ajv";
 import { Router } from "express";
+import { userSchema } from "../schemas";
 
 import { collections } from "../services/database.service";
 import asyncHandler from "../util/asyncHandler";
 
 const routes = Router();
-
+const ajv = new Ajv({ allErrors: true });
 // Login 
 routes.post("/login", asyncHandler(async (req, res) => {
   const { username, password } = req.body;
@@ -21,13 +23,22 @@ routes.post("/login", asyncHandler(async (req, res) => {
 
 // Signup 
 routes.post("/signup", asyncHandler(async (req, res) => {
-  const { name, username, password, key } = req.body;
-
-  if (key !== process.env.SIGNUP_KEY) {
+  // check pass key
+  if (req.body?.key !== process.env.SIGNUP_KEY) {
     return res.status(400).json({ message: "Wrong signup key" });
   }
 
-  const user = await collections.users.insertOne({ name, username, password });
+  delete req.body.key;
+
+  // validation
+  const validate = ajv.compile(userSchema);
+  const valid = validate(req.body);
+
+  if (!valid) {
+    return res.status(400).json({ message: "Invalid data", error: ajv.errorsText(validate.errors) });
+  }
+
+  const user = await collections.users.insertOne(req.body);
 
   if (user) {
     res.json({ message: "success", user });

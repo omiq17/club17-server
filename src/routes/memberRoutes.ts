@@ -29,7 +29,7 @@ routes.post("/add", upload.single('avatar'), asyncHandler(async (req, res) => {
   const valid = validate(req.body);
 
   if (!valid) {
-    return res.status(400).json({ message: ajv.errorsText(validate.errors) });
+    return res.status(400).json({ message: "Invalid data", error: ajv.errorsText(validate.errors) });
   }
 
   // check if user exist
@@ -91,7 +91,7 @@ routes.put("/update/info/:id", asyncHandler(async (req, res) => {
   const valid = validate(req.body);
 
   if (!valid) {
-    return res.status(400).json({ message: ajv.errorsText(validate.errors) });
+    return res.status(400).json({ message: "Invalid data", error: ajv.errorsText(validate.errors) });
   }
 
   const member = await collections.members.findOneAndUpdate(

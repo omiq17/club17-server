@@ -3,15 +3,16 @@ import { ObjectId } from "mongodb";
 import Ajv from "ajv";
 
 import { collections } from "../services/database.service";
+import { memberSchema } from "../schemas";
 import asyncHandler from "../util/asyncHandler";
 import upload from "../util/uploadHelper";
-import { memberSchema } from "../schemas";
+import auth from "../util/authMiddleware";
 
 const routes = Router();
 const ajv = new Ajv({ allErrors: true });
 
 // Add member
-routes.post("/add", upload.single('avatar'), asyncHandler(async (req, res) => {
+routes.post("/add", auth, upload.single('avatar'), asyncHandler(async (req, res) => {
   // check avatar
   if (!req.file) {
     return res.status(400).json({ message: "Avatar not found" })
@@ -19,6 +20,9 @@ routes.post("/add", upload.single('avatar'), asyncHandler(async (req, res) => {
 
   // attach uploaded file to avatar
   req.body.avatar = req.file.filename;
+
+  // add userId
+  req.body.userId = req.userId;
 
   if (req.body.phone) {
     req.body.phone = Number(req.body.phone);
@@ -30,17 +34,6 @@ routes.post("/add", upload.single('avatar'), asyncHandler(async (req, res) => {
 
   if (!valid) {
     return res.status(400).json({ message: "Invalid data", error: ajv.errorsText(validate.errors) });
-  }
-
-  if (!ObjectId.isValid(req.body.userId)) {
-    return res.status(400).json({ message: "Invalid user id" });
-  }
-
-  // check if user exist
-  const user = await collections.users.findOne({ _id: new ObjectId(req.body.userId) });
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
   }
 
   const result = await collections.members.insertOne(req.body);
@@ -54,7 +47,7 @@ routes.post("/add", upload.single('avatar'), asyncHandler(async (req, res) => {
 );
 
 // Update member avatar
-routes.put("/update/avatar/:id", upload.single('avatar'), asyncHandler(async (req, res) => {
+routes.put("/update/avatar/:id", auth, upload.single('avatar'), asyncHandler(async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "Avatar not found" })
   }
@@ -68,12 +61,12 @@ routes.put("/update/avatar/:id", upload.single('avatar'), asyncHandler(async (re
 
   // check member and update
   const member = await collections.members.findOneAndUpdate(
-    { _id: new ObjectId(id) },
+    { _id: new ObjectId(id), userId: req.userId },
     { $set: { avatar: req.file.filename } }
   );
 
   if (member && member.value) {
-    res.json({ message: "success", member: member });
+    res.json({ message: "success" });
   } else if (!member.value) {
     res.status(400).json({ message: "Member not found" });
   } else {
@@ -84,7 +77,7 @@ routes.put("/update/avatar/:id", upload.single('avatar'), asyncHandler(async (re
 
 
 // Update member info
-routes.put("/update/info/:id", asyncHandler(async (req, res) => {
+routes.put("/update/info/:id", auth, asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
@@ -95,6 +88,9 @@ routes.put("/update/info/:id", asyncHandler(async (req, res) => {
     req.body.phone = Number(req.body.phone);
   }
 
+  // add userId
+  req.body.userId = req.userId;
+
   // validation
   const validate = ajv.compile(memberSchema);
   const valid = validate(req.body);
@@ -104,13 +100,13 @@ routes.put("/update/info/:id", asyncHandler(async (req, res) => {
   }
 
   const member = await collections.members.findOneAndUpdate(
-    { _id: new ObjectId(id) },
+    { _id: new ObjectId(id), userId: req.userId },
     { $set: req.body }
   );
 
   // check member and update
   if (member && member.value) {
-    res.json({ message: "success", member: member });
+    res.json({ message: "success" });
   } else if (!member.value) {
     res.status(400).json({ message: "Member not found" });
   } else {
@@ -120,15 +116,8 @@ routes.put("/update/info/:id", asyncHandler(async (req, res) => {
 );
 
 // Get all members list by userId
-routes.get("/list/:userId", asyncHandler(async (req, res) => {
-  const { userId } = req.params;
-
-  if (!ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: "Invalid user id" });
-  }
-
-
-  const members = await collections.members.find({ userId }).toArray();
+routes.get("/list", auth, asyncHandler(async (req, res) => {
+  const members = await collections.members.find({ userId: req.userId }).toArray();
 
   if (members) {
     res.json({ message: "success", members });

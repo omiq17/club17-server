@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 export interface IMember {
   userId: string;
   name: string;

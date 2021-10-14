@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 
 import { memberRoutes, userRoutes } from "./routes";
 
@@ -19,6 +20,7 @@ class App {
   middlewares() {
     this.server.use(express.json());
     this.server.use(express.urlencoded({ extended: true }));
+    this.server.use(cors());
   }
 
   routes() {

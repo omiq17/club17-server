@@ -1,49 +1,55 @@
 import { Router } from "express";
 import { ObjectId } from "mongodb";
 import Ajv from "ajv";
+import axios from "axios"
 
 import { collections } from "../services/database.service";
 import { memberSchema } from "../schemas";
 import asyncHandler from "../util/asyncHandler";
 import upload from "../util/uploadHelper";
 import auth from "../util/authMiddleware";
+import FormData from "form-data";
+import fs from "fs";
 
 const routes = Router();
 const ajv = new Ajv({ allErrors: true });
 
 // Add member
-routes.post("/add", auth, upload.single('avatar'), asyncHandler(async (req, res) => {
-  // check avatar
-  if (!req.file) {
-    return res.status(400).json({ message: "Avatar not found" })
-  }
+routes.post("/add", auth,
+  // upload.single('avatar'), 
+  asyncHandler(async (req, res) => {
+    // Uncomment when upload using multer to disk storage
+    // if (!req.file) {
+    //   return res.status(400).json({ message: "Avatar not found" })
+    // }
+    // req.body.avatar = req.file.filename;
+    //
 
-  // attach uploaded file to avatar
-  req.body.avatar = req.file.filename;
+    if (req.body.phone) {
+      req.body.phone = Number(req.body.phone);
+    } else {
+      delete req.body.phone
+    }
 
-  // add userId
-  req.body.userId = req.userId;
+    // add userId
+    req.body.userId = req.userId;
 
-  if (req.body.phone) {
-    req.body.phone = Number(req.body.phone);
-  }
+    // validation
+    const validate = ajv.compile(memberSchema);
+    const valid = validate(req.body);
 
-  // validation
-  const validate = ajv.compile(memberSchema);
-  const valid = validate(req.body);
+    if (!valid) {
+      return res.status(400).json({ message: "Invalid data", error: ajv.errorsText(validate.errors) });
+    }
 
-  if (!valid) {
-    return res.status(400).json({ message: "Invalid data", error: ajv.errorsText(validate.errors) });
-  }
+    const result = await collections.members.insertOne(req.body);
 
-  const result = await collections.members.insertOne(req.body);
-
-  if (result) {
-    res.json({ message: "success" });
-  } else {
-    res.status(400).json({ message: "Failed to add member" });
-  }
-})
+    if (result) {
+      res.json({ message: "success", _id: result.insertedId });
+    } else {
+      res.status(400).json({ message: "Failed to add member" });
+    }
+  })
 );
 
 // Update member avatar

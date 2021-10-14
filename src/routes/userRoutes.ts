@@ -17,7 +17,6 @@ routes.post("/login", asyncHandler(async (req, res) => {
 
   const user = await collections.users.findOne({ username }) as IUserDB;
 
-
   if (user && (await bcrypt.compare(password, user.password))) {
     const token = jwt.sign(
       { userId: user._id },
@@ -30,7 +29,10 @@ routes.post("/login", asyncHandler(async (req, res) => {
     // update token to db
     await collections.users.updateOne({ username }, { $set: { token } });
 
-    res.json({ message: "success", token });
+    res.json({
+      message: "success",
+      user: { name: user.name, username: user.username, token }
+    });
   } else {
     res.status(404).json({ message: "Wrong credentials" });
   }
@@ -60,11 +62,11 @@ routes.post("/signup", asyncHandler(async (req, res) => {
   const old_user = await collections.users.findOne({ username });
 
   if (old_user) {
-    return res.status(409).json({ message: "User already registered, please login" });
+    return res.status(409).json({ message: "Username already taken, please try another one" });
   }
 
   //encrypt user password
-  const encryptedPassword = await bcrypt.hash(req.body.password, 10);
+  const encryptedPassword = await bcrypt.hash(password, 10);
 
   const user = await collections.users.insertOne({
     name,

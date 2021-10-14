@@ -1,15 +1,12 @@
 import { Router } from "express";
 import { ObjectId } from "mongodb";
 import Ajv from "ajv";
-import axios from "axios"
 
 import { collections } from "../services/database.service";
 import { memberSchema } from "../schemas";
 import asyncHandler from "../util/asyncHandler";
 import upload from "../util/uploadHelper";
 import auth from "../util/authMiddleware";
-import FormData from "form-data";
-import fs from "fs";
 
 const routes = Router();
 const ajv = new Ajv({ allErrors: true });

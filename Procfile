@@ -1,0 +1,1 @@
+web: npm node dist/server.js
